@@ -24,16 +24,25 @@ def main():
     **Disclaimer:** This is for educational purposes only and is NOT financial advice.
     """)
 
-    # Sidebar for Configuration
     with st.sidebar:
-        st.header("Configuration")
-        openai_api_key = st.text_input("OpenAI API Key", type="password")
+        st.header("Configuration ⚙️")
+        openai_api_key = st.text_input("OpenAI API Key 🔑", type="password")
+        
         st.info("Get your API key from [OpenAI](https://platform.openai.com/account/api-keys)")
 
     # Main Input
-    ticker = st.text_input("Enter Stock Ticker (e.g., NVDA, AAPL, TSLA)", value="NVDA")
+    ticker = st.text_input("Enter Stock Ticker 📈 (e.g., NVDA, AAPL, TSLA)", value="NVDA")
+    st.header("Strategy Preferences 🎯")
+    strategy_type = st.selectbox(
+        "Preferred Strategy ♟️",
+        ["Any", "Covered Call", "Put", "Call", "Iron Condor", "Straddle", "Strangle", "Credit Spread", "Debit Spread"]
+    )
+    timeframe = st.selectbox(
+        "Timeframe ⏳",
+        ["1 week", "2 weeks", "1 month", "3 months", "6 months", "1 year"]
+    )
 
-    if st.button("Generate Prediction"):
+    if st.button("Generate Prediction 🚀"):
         if not openai_api_key:
             st.error("Please enter your OpenAI API Key in the sidebar.")
             return
@@ -43,6 +52,12 @@ def main():
             return
 
         try:
+            # Construct the strategy instruction dynamically
+            if strategy_type == "Any":
+                strategy_instruction = f"5. Recommended Strategy: Suggest ONE specific option strategy (e.g., Covered Call, Put, Iron Condor) that best fits the analysis, with a recommended duration/expiration of approximately {timeframe}."
+            else:
+                strategy_instruction = f"5. Recommended Strategy: Evaluate if a {strategy_type} strategy is suitable for the current market trend. If it is NOT suitable, recommend the best alternative strategy instead and explicitly explain why the user's preferred strategy ({strategy_type}) is risky or suboptimal. Specify the recommended duration/expiration of approximately {timeframe}."
+
             # Initialize the Agent
             agent = Agent(
                 model=OpenAIChat(id="gpt-4o", api_key=openai_api_key),
@@ -52,13 +67,15 @@ def main():
                 ],
                 description="You are an expert financial analyst and options trader.",
                 instructions=[
-                    "1. Provide a 'Quickbite Overview': Stock Price, Trend (Bullish/Bearish), and Key Catalyst (1 sentence).",
-                    "2. Key Metrics Table: Display P/E, 52-Wk Range, and Analyst Consensus only.",
-                    "3. Market Sentiment: Summarize top 3 recent news items in 1 short bullet each.",
-                    "4. Prediction: Give a concise Price Target Range (1 week) with a Confidence Score %.",
-                    "5. Recommended Strategy: Suggest ONE specific option strategy (e.g., Iron Condor) with a 1-sentence rationale.",
-                    "6. Important: Keep the entire response short, scannable, and avoid long paragraphs.",
-                    "7. Disclaimer: This is for educational purposes only and is NOT financial advice."
+                    "1. **Summary Table**: Start with a markdown table containing: 'Price Target (Exact $)', 'Probability of Success %', 'AI Confidence Score %'. You MUST provide at least 5 distinct rows with specific price targets (NOT ranges).",
+                    "2. 'Quickbite Overview': Stock Price, Trend (Bullish/Bearish), and Key Catalyst (1 sentence).",
+                    "3. Key Metrics Table: Display P/E, 52-Wk Range, and Analyst Consensus only.",
+                    "4. Market Sentiment: Summarize top 3 recent news items in 1 short bullet each.",
+                    strategy_instruction,
+                    "6. Prediction: Give a concise Price Target Range (1 week).",
+                    "7. Important: Keep the entire response short, scannable, and avoid long paragraphs. Use full width for tables.",
+                    "8. Disclaimer: This is for educational purposes only and is NOT financial advice.",
+                    "9. Fun Style: Use relevant emojis throughout the response to make it engaging and fun! 🤩"
                 ],
                 markdown=True,
             )
@@ -66,7 +83,7 @@ def main():
             with st.spinner(f"Analyzing {ticker} market data and news..."):
                 # Run the agent
                 response: RunOutput = agent.run(
-                    f"Analyze {ticker} and predict its weekly price target with confidence and probability. Suggest an option strategy.",
+                    f"Analyze {ticker} and predict its weekly price target with confidence and probability. Suggest a {strategy_type} option strategy with a {timeframe} timeframe.",
                     stream=False
                 )
                 
