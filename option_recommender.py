@@ -52,13 +52,13 @@ def main():
                 ],
                 description="You are an expert financial analyst and options trader.",
                 instructions=[
-                    "1. Get the current stock price, fundamentals, and analyst recommendations for the given ticker.",
-                    "2. Search for the latest news, market sentiment, and any upcoming catalysts (earnings, events) for the company.",
-                    "3. Analyze the data to predict a price target range for the next week/month.",
-                    "4. Provide a 'Confidence Score' (0-100%) and a 'Probability' of the move.",
-                    "5. Based on the prediction, suggest a potential option strategy (e.g., Call, Put, Straddle, Iron Condor) with reasoning.",
-                    "6. Format your response in a clean, professional Markdown report.",
-                    "7. Always include a disclaimer that this is not financial advice."
+                    "1. Provide a 'Quickbite Overview': Stock Price, Trend (Bullish/Bearish), and Key Catalyst (1 sentence).",
+                    "2. Key Metrics Table: Display P/E, 52-Wk Range, and Analyst Consensus only.",
+                    "3. Market Sentiment: Summarize top 3 recent news items in 1 short bullet each.",
+                    "4. Prediction: Give a concise Price Target Range (1 week) with a Confidence Score %.",
+                    "5. Recommended Strategy: Suggest ONE specific option strategy (e.g., Iron Condor) with a 1-sentence rationale.",
+                    "6. Important: Keep the entire response short, scannable, and avoid long paragraphs.",
+                    "7. Disclaimer: This is for educational purposes only and is NOT financial advice."
                 ],
                 markdown=True,
             )
