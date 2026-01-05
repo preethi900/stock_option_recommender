@@ -41,6 +41,7 @@ def main():
         "Timeframe ⏳",
         ["1 week", "2 weeks", "1 month", "3 months", "6 months", "1 year"]
     )
+    premium_focus = st.checkbox("Focus on Collecting Premium 💰")
 
     if st.button("Generate Prediction 🚀"):
         if not openai_api_key:
@@ -53,10 +54,15 @@ def main():
 
         try:
             # Construct the strategy instruction dynamically
+            strategy_instruction = ""
+            
+            if premium_focus:
+                strategy_instruction += "User wants to COLLECT PREMIUM (Theta Strategy). Prioritize selling options (e.g., Credit Spreads, Iron Condors, Covered Calls). Suggest strikes that are Out-of-The-Money (OTM) with high probability of expiring worthless. "
+
             if strategy_type == "Any":
-                strategy_instruction = f"5. Recommended Strategy: Suggest ONE specific option strategy (e.g., Covered Call, Put, Iron Condor) that best fits the analysis, with a recommended duration/expiration of approximately {timeframe}."
+                strategy_instruction += f"5. Recommended Strategy: Suggest ONE specific option strategy that best fits the analysis (and premium focus if selected), with a recommended duration/expiration of approximately {timeframe}."
             else:
-                strategy_instruction = f"5. Recommended Strategy: Evaluate if a {strategy_type} strategy is suitable for the current market trend. If it is NOT suitable, recommend the best alternative strategy instead and explicitly explain why the user's preferred strategy ({strategy_type}) is risky or suboptimal. Specify the recommended duration/expiration of approximately {timeframe}."
+                strategy_instruction += f"5. Recommended Strategy: Evaluate if a {strategy_type} strategy is suitable for the current market trend. If it is NOT suitable, recommend the best alternative strategy instead and explicitly explain why the user's preferred strategy ({strategy_type}) is risky or suboptimal. Specify the recommended duration/expiration of approximately {timeframe}."
 
             # Initialize the Agent
             agent = Agent(
@@ -67,10 +73,11 @@ def main():
                 ],
                 description="You are an expert financial analyst and options trader.",
                 instructions=[
-                    "1. **Summary Table**: Start with a markdown table containing: 'Price Target (Exact $)', 'Probability of Success %', 'AI Confidence Score %'. You MUST provide at least 5 distinct rows with specific price targets (NOT ranges).",
+                    "1. **Summary Table**: Start with a markdown table containing: 'Price Target (Exact $)', 'Probability of Success %', 'AI Confidence Score %'. You MUST provide at least 5 distinct rows with specific price targets for confidence always greater than 90%. IMMEDIATELY follow the table with this italicized note: *'Note: AI Confidence Score reflects the model's certainty based on the alignment of technical indicators, analyst consensus, vs market sentiment.'*",
                     "2. 'Quickbite Overview': Stock Price, Trend (Bullish/Bearish), and Key Catalyst (1 sentence).",
-                    "3. Key Metrics Table: Display P/E, 52-Wk Range, and Analyst Consensus only.",
-                    "4. Market Sentiment: Summarize top 3 recent news items in 1 short bullet each.",
+                    "3. Technical Analysis: State the **current RSI value** (e.g., 'RSI: 64'). Analyze it: if RSI > 70, consider 'Overbought' (lean bearish). If RSI < 30, consider 'Oversold' (lean bullish). Use this to justify the strategy.",
+                    "4. Key Metrics Table: Display P/E, 52-Wk Range, and Analyst Consensus only.",
+                    "5. Market Sentiment: Summarize top 3 recent news items in 1 short bullet each.",
                     strategy_instruction,
                     "6. Prediction: Give a concise Price Target Range (1 week).",
                     "7. Important: Keep the entire response short, scannable, and avoid long paragraphs. Use full width for tables.",
