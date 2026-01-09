@@ -75,21 +75,23 @@ def main():
                 strategy_instruction += (
                     "User wants to COLLECT PREMIUM (Theta Strategy). "
                     "Prioritize selling options (e.g., Credit Spreads, Iron Condors, Covered Calls). "
-                    "Suggest strikes that are Out-of-The-Money (OTM) with high probability of expiring worthless. "
+                    "Suggest strikes that are Out-of-The-Money (OTM) "
+                    "with high probability of expiring worthless. "
                 )
 
             if strategy_type == "Any":
                 strategy_instruction += (
-                    f"5. Recommended Strategy: Suggest ONE specific option strategy that best fits the analysis "
-                    f"(and premium focus if selected), with a recommended duration/expiration of approximately "
-                    f"{timeframe}."
+                    f"5. Recommended Strategy: Suggest ONE specific option strategy that best fits the "
+                    f"analysis (and premium focus if selected), with a recommended duration/expiration "
+                    f"of approximately {timeframe}."
                 )
             else:
                 strategy_instruction += (
-                    f"5. Recommended Strategy: Evaluate if a {strategy_type} strategy is suitable for the current "
-                    f"market trend. If it is NOT suitable, recommend the best alternative strategy instead and "
-                    f"explicitly explain why the user's preferred strategy ({strategy_type}) is risky or "
-                    f"suboptimal. Specify the recommended duration/expiration of approximately {timeframe}."
+                    f"5. Recommended Strategy: Evaluate if a {strategy_type} strategy is suitable for "
+                    f"the current market trend. If it is NOT suitable, recommend the best alternative "
+                    f"strategy instead and explicitly explain why the user's preferred strategy "
+                    f"({strategy_type}) is risky or suboptimal. Specify the recommended duration/expiration "
+                    f"of approximately {timeframe}."
                 )
 
             # Initialize the Agent
@@ -102,13 +104,14 @@ def main():
                 description="You are an expert financial analyst and options trader.",
                 instructions=[
                     "1. **Summary Table**: Start with a markdown table containing: 'Price Target (Exact $)', "
-                    "'Probability of Success %', 'AI Confidence Score %'. You MUST provide at least 5 distinct rows "
-                    "with specific price targets for confidence always greater than 90%. "
-                    "IMMEDIATELY follow the table with this italicized note: *'Note: AI Confidence Score reflects "
-                    "the model's certainty based on the alignment of technical indicators, analyst consensus, "
-                    "vs market sentiment.'*",
+                    "'Probability of Success %', 'AI Confidence Score %'. You MUST provide at least 5 "
+                    "distinct rows with specific price targets for confidence always greater than 90%. "
+                    "IMMEDIATELY follow the table with this italicized note: *'Note: AI Confidence Score "
+                    "reflects the model's certainty based on the alignment of technical indicators, "
+                    "analyst consensus, vs market sentiment.'*",
 
-                    "2. 'Quickbite Overview': Stock Price, Trend (Bullish/Bearish), and Key Catalyst (1 sentence).",
+                    "2. 'Quickbite Overview': Stock Price, Trend (Bullish/Bearish), "
+                    "and Key Catalyst (1 sentence).",
 
                     "3. Technical Analysis: State the **current RSI value** (e.g., 'RSI: 64'). Analyze it: "
                     "if RSI > 70, consider 'Overbought' (lean bearish). If RSI < 30, consider 'Oversold' "
