@@ -85,6 +85,8 @@ def main():
                     "9. Fun Style: Use relevant emojis throughout the response to make it engaging and fun! 🤩"
                 ],
                 markdown=True,
+                debug_mode=True,
+                debug_level="all"
             )
 
             with st.spinner(f"Analyzing {ticker} market data and news..."):

@@ -2,5 +2,4 @@ streamlit
 agno>=2.2.10
 openai
 yfinance
-duckduckgo-search
 ddgs
