@@ -74,7 +74,8 @@ def main():
             if premium_focus:
                 strategy_instruction += (
                     "User wants to COLLECT PREMIUM (Theta Strategy). "
-                    "Prioritize selling options (e.g., Credit Spreads, Iron Condors, Covered Calls). "
+                    "Prioritize selling options "
+                    "(e.g., Credit Spreads, Iron Condors, Covered Calls). "
                     "Suggest strikes that are Out-of-The-Money (OTM) "
                     "with high probability of expiring worthless. "
                 )
@@ -104,7 +105,8 @@ def main():
                 description="You are an expert financial analyst and options trader.",
                 instructions=[
                     "1. **Summary Table**: Start with a markdown table containing: "
-                    "'Price Target (Exact $)', 'Probability of Success %', 'AI Confidence Score %'. "
+                    "'Price Target (Exact $)', 'Probability of Success %', "
+                    "'AI Confidence Score %'. "
                     "You MUST provide at least 5 distinct rows with specific price targets for "
                     "confidence always greater than 90%. IMMEDIATELY follow the table with this "
                     "italicized note: *'Note: AI Confidence Score reflects the model's certainty "
