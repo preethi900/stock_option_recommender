@@ -13,6 +13,9 @@ steps:
       # Save as text format
       pylint $(git ls-files '*.py') | tee logs/pylint-report.txt
       
+      # Store exit code
+      PYLINT_EXIT_CODE=${PIPESTATUS[0]}
+      
       # Also save as JSON format for easier parsing
       pylint $(git ls-files '*.py') --output-format=json > logs/pylint-report.json || true
       
@@ -20,12 +23,13 @@ steps:
       pylint $(git ls-files '*.py') --output-format=colorized > logs/pylint-report-color.txt || true
       
       # Return the exit code from the first pylint run
-      exit ${PIPESTATUS[0]}
+      exit $PYLINT_EXIT_CODE
     plugins:
       - docker#v5.11.0:
           image: "python:3.10"
           workdir: /app
+          mount-buildkite-agent: true
+          propagate-environment: true
     artifact_paths:
-      - "logs/pylint-report.txt"
-      - "logs/pylint-report.json"
-      - "logs/pylint-report-color.txt"
+      - "logs/*.txt"
+      - "logs/*.json"
