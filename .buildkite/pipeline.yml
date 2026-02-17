@@ -2,7 +2,8 @@ steps:
   - label: ":lint-roller: Pylint Code Check"
     key: "pylint"
     command: |
-      python -m pip install --upgrade pip
+      # Install dependencies
+      python3 -m pip install --upgrade pip
       pip install -r requirements.txt
       pip install pylint
       
@@ -10,26 +11,30 @@ steps:
       mkdir -p logs
       
       # Run pylint and save output to log files
-      # Save as text format
-      pylint $(git ls-files '*.py') | tee logs/pylint-report.txt
+      echo "Running pylint and saving results..."
+      
+      # Save as text format (with tee to see output)
+      pylint $(git ls-files '*.py') 2>&1 | tee logs/pylint-report.txt
       
       # Store exit code
       PYLINT_EXIT_CODE=${PIPESTATUS[0]}
       
       # Also save as JSON format for easier parsing
-      pylint $(git ls-files '*.py') --output-format=json > logs/pylint-report.json || true
+      pylint $(git ls-files '*.py') --output-format=json > logs/pylint-report.json 2>&1 || true
       
       # Save colorized output (if you want ANSI colors preserved)
-      pylint $(git ls-files '*.py') --output-format=colorized > logs/pylint-report-color.txt || true
+      pylint $(git ls-files '*.py') --output-format=colorized > logs/pylint-report-color.txt 2>&1 || true
+      
+      # Create a summary file
+      echo "Pylint check completed at $(date)" > logs/summary.txt
+      echo "Exit code: $PYLINT_EXIT_CODE" >> logs/summary.txt
+      echo "Files checked: $(git ls-files '*.py' | wc -l)" >> logs/summary.txt
+      
+      # List generated files for verification
+      echo "Generated log files:"
+      ls -lh logs/
       
       # Return the exit code from the first pylint run
       exit $PYLINT_EXIT_CODE
-    plugins:
-      - docker#v5.11.0:
-          image: "python:3.10"
-          workdir: /app
-          mount-buildkite-agent: true
-          propagate-environment: true
     artifact_paths:
-      - "logs/*.txt"
-      - "logs/*.json"
+      - "logs/**/*"
