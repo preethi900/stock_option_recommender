@@ -2,22 +2,31 @@ steps:
   - label: ":lint-roller: Pylint Code Check"
     key: "pylint"
     command: |
+      # Show current directory for debugging
+      echo "Current directory: $(pwd)"
+      ls -la
+      
       # Install dependencies
       python3 -m pip install --upgrade pip
-      pip install -r requirements.txt
+      
+      # Use --ignore-installed to bypass distutils package conflicts (like blinker)
+      pip install --ignore-installed -r requirements.txt
       pip install pylint
       
       # Create logs directory
       mkdir -p logs
+      echo "Created logs directory at: $(pwd)/logs"
       
       # Run pylint and save output to log files
       echo "Running pylint and saving results..."
       
-      # Save as text format (with tee to see output)
+      # Save as text format (with tee to see output) - don't exit on failure
+      set +e  # Disable exit on error
       pylint $(git ls-files '*.py') 2>&1 | tee logs/pylint-report.txt
+      PYLINT_EXIT_CODE=$?
+      set -e  # Re-enable exit on error
       
-      # Store exit code
-      PYLINT_EXIT_CODE=${PIPESTATUS[0]}
+      echo "Pylint exit code: $PYLINT_EXIT_CODE"
       
       # Also save as JSON format for easier parsing
       pylint $(git ls-files '*.py') --output-format=json > logs/pylint-report.json 2>&1 || true
@@ -33,14 +42,18 @@ steps:
       # List generated files for verification
       echo "========================================="
       echo "Generated log files:"
-      ls -lh logs/
+      ls -lh logs/ || echo "ERROR: logs directory not found!"
+      echo "Checking if files exist:"
+      [ -f logs/pylint-report.txt ] && echo "✓ pylint-report.txt exists" || echo "✗ pylint-report.txt missing"
+      [ -f logs/pylint-report.json ] && echo "✓ pylint-report.json exists" || echo "✗ pylint-report.json missing"
+      [ -f logs/summary.txt ] && echo "✓ summary.txt exists" || echo "✗ summary.txt missing"
       echo "========================================="
       
       # Explicitly upload artifacts (in case artifact_paths doesn't work)
       if command -v buildkite-agent >/dev/null 2>&1; then
         echo "Uploading artifacts explicitly..."
-        buildkite-agent artifact upload "logs/*"
-        echo "Artifacts uploaded!"
+        buildkite-agent artifact upload "logs/*" || echo "Artifact upload failed!"
+        echo "Artifacts upload attempted!"
       else
         echo "WARNING: buildkite-agent not found, artifacts may not upload"
       fi
