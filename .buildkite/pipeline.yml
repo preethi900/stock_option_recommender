@@ -5,8 +5,27 @@ steps:
       python -m pip install --upgrade pip
       pip install -r requirements.txt
       pip install pylint
-      pylint $(git ls-files '*.py')
+      
+      # Create logs directory
+      mkdir -p logs
+      
+      # Run pylint and save output to log files
+      # Save as text format
+      pylint $(git ls-files '*.py') | tee logs/pylint-report.txt
+      
+      # Also save as JSON format for easier parsing
+      pylint $(git ls-files '*.py') --output-format=json > logs/pylint-report.json || true
+      
+      # Save colorized output (if you want ANSI colors preserved)
+      pylint $(git ls-files '*.py') --output-format=colorized > logs/pylint-report-color.txt || true
+      
+      # Return the exit code from the first pylint run
+      exit ${PIPESTATUS[0]}
     plugins:
       - docker#v5.11.0:
           image: "python:3.10"
           workdir: /app
+    artifact_paths:
+      - "logs/pylint-report.txt"
+      - "logs/pylint-report.json"
+      - "logs/pylint-report-color.txt"
