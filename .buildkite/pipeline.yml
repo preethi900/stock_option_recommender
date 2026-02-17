@@ -31,8 +31,19 @@ steps:
       echo "Files checked: $(git ls-files '*.py' | wc -l)" >> logs/summary.txt
       
       # List generated files for verification
+      echo "========================================="
       echo "Generated log files:"
       ls -lh logs/
+      echo "========================================="
+      
+      # Explicitly upload artifacts (in case artifact_paths doesn't work)
+      if command -v buildkite-agent >/dev/null 2>&1; then
+        echo "Uploading artifacts explicitly..."
+        buildkite-agent artifact upload "logs/*"
+        echo "Artifacts uploaded!"
+      else
+        echo "WARNING: buildkite-agent not found, artifacts may not upload"
+      fi
       
       # Return the exit code from the first pylint run
       exit $PYLINT_EXIT_CODE
